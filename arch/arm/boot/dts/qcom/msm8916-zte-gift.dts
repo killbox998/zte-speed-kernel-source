@@ -1,0 +1,124 @@
+/* Copyright (c) 2014, The Linux Foundation. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 and
+* only version 2 as published by the Free Software Foundation.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*/
+
+/dts-v1/;
+
+#include "msm8916-mtp.dtsi"
+#include "msm8916-memory.dtsi"
+#include "zte-msm8916-gift.dtsi"
+#include "dsi-panel-zte-lead_orise1283a-cpt-6p0-720p-video.dtsi"
+#include "dsi-panel-zte-yushun_hx8394d-6p0-720p-video.dtsi"
+
+/*
+  * Added for camera sensor dtsi file
+  *
+  * by ZTE_YCM_20140709 yi.changming 000001
+  *
+  * use zte dtsi file to compatible evb and other project
+  * by ZTE_YCM_20140714 yi.changming 000013
+  *
+  * change platform sensor dtsi file postion
+  * by ZTE_YCM_20140728 yi.changming 000027
+  */
+// --->
+//#include "msm8916-camera-sensor-evb.dtsi"
+//#include "msm8916-camera-sensor-zte.dtsi"
+// <---
+
+/ {
+	model = "ZTE Technologies, Inc. MSM 8916 GIFT";
+	compatible = "qcom,msm8916-mtp", "qcom,msm8916", "qcom,mtp";
+	qcom,board-id = <101 1>;
+};
+
+&soc {
+	i2c@78b8000 {
+		bq27x00-bms@55 {
+			compatible = "zte,bq27x00-bms";
+			reg = <0x55>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <117 2>, <118 3>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&bq27x00_int_default>;
+			pinctrl-1 = <&bq27x00_bat_int_default>;
+			/*warm_bat_decidegc = <440>;*/
+			/*cool_bat_decidegc = <10>;*/
+			hot_bat_decidegc = <440>;
+			cold_bat_decidegc = <10>;
+		};
+
+		ti2419x-chg@6B {
+			compatible = "zte,ti2419x-chg";
+			reg = <0x6B>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <62 2>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&smb_int_default>;
+			regulator-name = "smb1360_otg_vreg";
+
+			zte,float-voltage-mv = <4352>;
+			zte,iterm-ma = <128>;
+			/*zte,charging-disabled; changed by zte */
+			zte,recharge-thresh-mv = <100>;
+			zte,charging-timeout = <20>;
+			zte,max_usb_current = <1500>;
+			zte,max_battery_current = <1536>;
+			zte,thermal-mitigation = <1500 1000 900 500 0>;
+			zte,warm_bat_mv = <4200>;
+			zte,cool_bat_mv = <4200>;
+			zte,warm_bat_chg_ma = <500>;
+			zte,cool_bat_chg_ma = <500>;
+		};
+	};
+		zte-hall {	
+			compatible = "zte-hall";	
+			hall_en{	
+			label = "hall_en";	
+			gpios = <&msm_gpio 69 0x0>;	
+			};	
+			};
+};
+ &mdss_dsi0 {
+ 	qcom,dsi-pref-prim-pan = <&dsi_lead_orise1283a_cpt_6p0_720p_video>;
+       zte,lcd-5v-vsp-enable-gpio = <&msm_gpio 0 1>;
+       zte,lcd-5v-vsn-enable-gpio = <&msm_gpio 1 1>;
+ };
+/*
+&usb_otg {
+	qcom,hsusb-otg-mode = <3>;
+	qcom,usbid-gpio = <&msm_gpio 110 0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&usbid_default>;
+	vbus_otg-supply = <&smb1360_otg_supply>;
+};
+
+&pm8916_chg {
+	status = "ok";
+	qcom,use-external-charger;
+};
+
+&pm8916_bms {
+	status = "ok";
+	qcom,disable-bms;
+};
+*/
+
+
+&spmi_bus {
+	qcom,pm8916@1 {
+		qcom,vibrator@c000 {
+			status = "okay";
+			qcom,vib-timeout-ms = <15000>;
+			qcom,vib-vtg-level-mV = <3000>;/*zte change 3100 to 3000 for Z936L,hardware require*/
+		};
+	};
+};

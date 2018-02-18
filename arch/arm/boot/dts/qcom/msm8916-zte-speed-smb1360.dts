@@ -1,0 +1,88 @@
+/* Copyright (c) 2014, The Linux Foundation. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 and
+* only version 2 as published by the Free Software Foundation.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*/
+
+/dts-v1/;
+
+#include "msm8916-mtp.dtsi"
+#include "msm8916-memory.dtsi"
+#include "zte-msm8916-speed-smb1360.dtsi"
+
+/*
+  * Added for camera sensor dtsi file  
+  *
+  * by ZTE_YCM_20140709 yi.changming 000001
+  *
+  * use zte dtsi file to compatible evb and other project
+  * by ZTE_YCM_20140714 yi.changming 000013
+  *
+  * change platform sensor dtsi file postion
+  * by ZTE_YCM_20140728 yi.changming 000027
+  */
+// --->
+//#include "msm8916-camera-sensor-evb.dtsi"
+//#include "msm8916-camera-sensor-zte.dtsi"
+// <---
+
+/ {
+	model = "ZTE Technologies, Inc. MSM 8916 SPEED";
+	compatible = "qcom,msm8916-mtp", "qcom,msm8916", "qcom,mtp";
+	qcom,board-id = <100 1>;
+};
+
+&soc {
+        zte_misc {
+                       compatible = "zte-misc";
+                       battery_switch {
+                               label = "battery_switch";
+                               gpios = <&pm8916_gpios 2 0x0>;
+                       };
+         };
+	i2c@78b8000 {
+		smb1360_otg_supply: smb1360-chg-fg@14 {
+			compatible = "qcom,smb1360-chg-fg";
+			reg = <0x14>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <62 8>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&smb_int_default>;
+			regulator-name = "smb1360_otg_vreg";
+                           qcom,shdn-after-pwroff;               /*add  by zte jiangzhineng */
+			qcom,chg-inhibit-disabled;
+			qcom,float-voltage-mv = <4350>;
+			qcom,iterm-ma = <125>;             /*default=100, changed by zte jiangzhineng */
+			/*qcom,charging-disabled; changed by zte */
+			qcom,recharge-thresh-mv = <200>;         /*default=100, changed by zte jiangzhineng */
+			qcom,thermal-mitigation = <1500 700 600 0>;
+			qcom,fg-auto-recharge-soc= <94>;  /*add  by zte jiangzhineng */
+			qcom,fg-reset-at-pon;             /*add  by zte jiangzhineng */
+			qcom,fg-reset-thresold-mv= <400>;
+		};
+	};
+};
+
+&usb_otg {
+	qcom,hsusb-otg-mode = <3>;
+	qcom,usbid-gpio = <&msm_gpio 110 0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&usbid_default>;
+	vbus_otg-supply = <&smb1360_otg_supply>;
+};
+
+&pm8916_chg {
+	status = "ok";
+	qcom,use-external-charger;
+};
+
+&pm8916_bms {
+	status = "ok";
+	qcom,disable-bms;
+};

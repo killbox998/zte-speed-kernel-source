@@ -1,0 +1,78 @@
+/* Copyright (c) 2014, The Linux Foundation. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 and
+* only version 2 as published by the Free Software Foundation.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*/
+
+/dts-v1/;
+
+#include "msm8916-mtp.dtsi"
+#include "msm8916-memory.dtsi"
+
+/*
+  * Added for camera sensor dtsi file
+  *
+  * by ZTE_YCM_20140709 yi.changming 000001
+  *
+  * use zte dtsi file to compatible evb and other project
+  * by ZTE_YCM_20140714 yi.changming 000013
+  */
+// --->
+//#include "msm8916-camera-sensor-evb.dtsi"
+#include "msm8916-camera-sensor-zte.dtsi"
+// <---
+
+/ {
+	model = "ZTE Technologies, Inc. MSM 8916 SPEED";
+	compatible = "qcom,msm8916-mtp", "qcom,msm8916", "qcom,mtp";
+	qcom,board-id = <100 10>;
+};
+
+&soc {
+	i2c@78b8000 {
+		smb1360_otg_supply: ti2419x-chg@6B {
+			compatible = "zte,ti2419x-chg";
+			reg = <0x6B>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <62 8>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&smb_int_default>;
+			regulator-name = "smb1360_otg_vreg";
+
+			zte,float-voltage-mv = <4352>;
+			zte,iterm-ma = <128>;
+			/*zte,charging-disabled; changed by zte */
+			zte,recharge-thresh-mv = <100>;
+			zte,charging-timeout = <20>;
+			zte,max_usb_current = <1500>;
+			zte,max_battery_current = <1536>;
+			zte,thermal-mitigation = <1500 1000 900 500 0>;
+		};
+	};
+};
+
+/*
+&usb_otg {
+	qcom,hsusb-otg-mode = <3>;
+	qcom,usbid-gpio = <&msm_gpio 110 0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&usbid_default>;
+	vbus_otg-supply = <&smb1360_otg_supply>;
+};
+
+&pm8916_chg {
+	status = "ok";
+	qcom,use-external-charger;
+};
+
+&pm8916_bms {
+	status = "ok";
+	qcom,disable-bms;
+};
+*/

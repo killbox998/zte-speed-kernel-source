@@ -1,0 +1,215 @@
+/* Copyright (c) 2014, The Linux Foundation. All rights reserved.
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 and
+* only version 2 as published by the Free Software Foundation.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*/
+/*
+  * enable eeprom device and boundle the sensor and eeprom
+  * change platform sensor dtsi file postion
+  * by ZTE_YCM_20140728 yi.changming 000027
+  */
+// --->
+#include "msm8916-camera-sensor-zte.dtsi"
+#include "touch-key-backlight-tsfqj.dtsi"
+#include "dsi-panel-zte-lead-cpt-hx8379a-fwvga-4p5-video.dtsi"
+#include "dsi-panel-zte-boe-boe-otm8019a-fwvga-4p5-video.dtsi"
+#include "dsi-panel-zte-yushun-boe-hx8379c-fwvga-4p5-video.dtsi"
+
+&cci {
+
+
+	qcom,camera-flash-lm3642 {
+			status = "ok";
+		};
+	
+	qcom,camera@0 {
+		qcom,led-flash-src = <&led_flash_lm3642>;
+	};
+
+	qcom,camera@42 {
+			status = "ok";
+	};
+ /*
+  * solve that led flash device node can't light 
+  *
+  * by ZTE_YCM_20140728 yi.changming 000030
+  */
+// --->
+	qcom,camera-flash-lm3642 {
+		zte,camera-sensor-rear-src = <&camera0>;
+		zte,camera-sensor-front-src = <&camera1>;
+		zte,cci-power-iovdd-gpios = <&msm_gpio 17 0>;
+		zte,cci-power-dvdd-gpios = <&msm_gpio 121 0>;
+		zte,cci-power-avdd-gpios = <&msm_gpio 16 0>;
+	};
+// <---
+};
+// <---
+
+&soc {
+    i2c@78b6000 { /* BLSP1 QUP2 */
+		mpu6050@68 { /* Gyroscope and accelerometer sensor combo */
+			compatible = "invn,mpu6050";
+			reg = <0x68>;
+			pinctrl-names = "mpu_default","mpu_sleep";
+			pinctrl-0 = <&mpu6050_default>;
+			pinctrl-1 = <&mpu6050_sleep>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <115 0x2>;
+			vdd-supply = <&pm8916_l17>;
+			vlogic-supply = <&pm8916_l16>;
+			vi2c-supply = <&pm8916_l6>;
+			invn,gpio-int = <&msm_gpio 115 0x2>;
+			invn,place = "Portrait Down Back Side";
+		};
+
+		
+		lis3dh_acc@19 {
+			compatible = "st,lis3dh";
+			reg = <0x19>;			
+			pinctrl-names = "lis3dh_default","lis3dh_sleep";
+			pinctrl-0 = <&lis3dh_default>;
+			pinctrl-1 = <&lis3dh_sleep>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <115 0x2>;					
+			vdd-supply = <&pm8916_l17>;
+			vddio-supply = <&pm8916_l5>;
+			st,min-interval = <5>;
+			st,init-interval = <200>;
+			st,axis-map-x = <1>;
+			st,axis-map-y = <0>;
+			st,axis-map-z = <2>;
+			st,g-range =  <2>;
+			//st,negate-x;
+			st,negate-y;
+			//st,negate-z;
+			st,gpio-int1 = <&msm_gpio 0xFF 0x2>;
+			//st,gpio-int2 = <&msm_gpio 0xFF 0x00>;			
+		}; 
+
+		kxtj9@f {
+			compatible = "kionix,kxtj9";
+			reg = <0x0f>;			
+			interrupt-parent = <&msm_gpio>;
+			//interrupts = <115 0x2>;					
+			vdd-supply = <&pm8916_l17>;
+			vio-supply = <&pm8916_l5>;
+			kionix,min-interval = <5>;
+			kionix,init-interval = <100>;
+			kionix,axis-map-x = <1>;
+			kionix,axis-map-y = <0>;
+			kionix,axis-map-z = <2>;
+			kionix,g-range =  <2>;
+			//kionix,negate-x;
+			kionix,negate-y;
+			//kionix,negate-z;
+			kionix,res-12bit;
+			kionix,gpio-int1 = <&msm_gpio 0xFF 0x02>;
+			//kionix,gpio-int2 = <&msm_gpio 0xFF 0x00>;
+			
+		};
+				
+
+
+        /*	avago@39 {
+			compatible = "avago,apds9900";
+			reg = <0x39>;
+			pinctrl-names = "default","sleep";
+			pinctrl-0 = <&apds99xx_default>;
+			pinctrl-1 = <&apds99xx_sleep>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <113 0x2002>;
+			vdd-supply = <&pm8916_l17>;
+			vio-supply = <&pm8916_l6>;
+			avago,irq-gpio = <&msm_gpio 113 0x2002>;
+			avago,ps-threshold = <600>;
+			avago,ps-hysteresis-threshold = <500>;
+			avago,ps-pulse = <8>;
+			avago,ps-pgain = <0>;
+			avago,als-B = <223>;
+			avago,als-C = <70>;
+			avago,als-D = <142>;
+			avago,ga-value = <48>;
+		};*/
+		
+		taos@39 {
+			compatible = "taos,2771";
+			reg = <0x39>;
+			pinctrl-names = "default","sleep";
+			pinctrl-0 = <&apds99xx_default>;
+			pinctrl-1 = <&apds99xx_sleep>;
+			interrupt-parent = <&msm_gpio>;
+			interrupts = <113 0x2002>;
+			vdd-supply = <&pm8916_l17>;
+			vio-supply = <&pm8916_l6>;
+			taos,irq-gpio = <&msm_gpio 113 0x2002>;
+			taos,ps-threshold = <600>;
+			taos,ps-hysteresis-threshold = <500>;
+			taos,ps-pulse = <8>;
+			taos,ps-pgain = <0>;
+			taos,als-B = <223>;
+			taos,als-C = <70>;
+			taos,als-D = <142>;
+			taos,ga-value = <48>;
+		};
+		
+		stk@48 {
+			compatible = "stk,stk3x1x";
+			reg = <0x48>;
+			interrupt-parent = <&msm_gpio>;
+			//interrupts = <80 0x2>;
+			interrupts = <113 0x2002>;
+			vdd-supply = <&pm8916_l17>;
+			vio-supply = <&pm8916_l6>;
+			//stk,irq-gpio = <&msm_gpio 80 0x02>;
+			stk,irq-gpio = <&msm_gpio 113 0x2002>;
+			stk,state-reg = <0x0>;
+			stk,psctrl-reg = <0x31>;
+			stk,alsctrl-reg = <0x38>;
+			stk,ledctrl-reg = <0xFF>;
+			stk,wait-reg = <0x07>;
+			stk,ps-thd-h = <1700>;
+			stk,ps-thd-l = <1500>;
+			stk,transmittance = <500>;
+			stk,use-fir;
+		};
+
+		//akm@c {
+		//	compatible = "ak,ak8963";
+		//	reg = <0x0c>;
+		//	pinctrl-names = "ak8963_default", "ak8963_sleep";
+		//	pinctrl-0 = <&ak8963_default>;
+		//	pinctrl-1 = <&ak8963_sleep>;
+		//	interrupt-parent = <&msm_gpio>;
+		//	interrupts = <69 0x2>;
+		//	vdd-supply = <&pm8916_l17>;
+		//	vio-supply = <&pm8916_l6>;
+		//	ak,layout = <0x6>;
+		//	ak,auto-report;
+		//};
+
+		akm@c {
+			compatible = "ak,ak09911";
+			reg = <0x0c>;
+			vdd-supply = <&pm8916_l17>;
+			vio-supply = <&pm8916_l5>;
+			akm,layout = <0x2>;
+			akm,auto-report;
+		};
+
+	};
+};
+
+/* ZTE, USB phy init seq override, wangzy*/
+&soc {
+        usb_otg: usb@78d9000 {
+                qcom,hsusb-otg-phy-init-seq =
+                        <0x44 0x80 0x6B 0x81 0x30 0x82 0x33 0x83 0xffffffff>;
+        };
+};
